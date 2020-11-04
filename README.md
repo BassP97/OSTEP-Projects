@@ -1,5 +1,5 @@
 # OSTEP-Projects
-Very slowly working through the OSTEP lectures and projects (using rust instead of C because I'm a trend-follower)
+Very slowly working through the OSTEP lectures and projects (using rust instead of C where I can because I'm a trend-follower)
 
 # Checklist
 - [x] [Warm-up Linux utilities](https://github.com/remzi-arpacidusseau/ostep-projects/tree/master/initial-utilities)
