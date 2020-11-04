@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.of": "forth",
+        "__config": "cpp",
+        "istream": "cpp",
+        "locale": "cpp"
+    }
+}
