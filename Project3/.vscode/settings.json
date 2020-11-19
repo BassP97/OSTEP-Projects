@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "*.of": "forth",
+        "__string": "c",
+        "cstring": "c",
+        "memory": "c",
+        "utility": "c",
+        "istream": "cpp",
+        "locale": "cpp"
+    }
+}
