@@ -3,22 +3,42 @@
 
 #define STDIN 0
 #define CHILDPROC 0
-#define STDOUT 1
-#define STDERR 2
+#define STDERR 1
+#define STDOUT 2
+
+int runWish(char **myargv, char** path, int argvSize, int argSize);
 
 int main(int argc, char *argv[]){
-    char* myargv[20];
-    uint maxCmdSize = 100;
-    myargv[0] = malloc(maxCmdSize);
-    myargv[1] = "\0";
-    while(getcmd(myargv[0], maxCmdSize)>=0){
-        if (fork() == CHILDPROC){
-            exec(myargv[0], myargv);
-            printf(STDERR, "exec %sfailed\n", myargv[0]);
+    char* path[20];
+    path[0] = "/bin/";
+    char** myargv;
+    uint maxArgs = 10;
+    uint argSize = 100;
+    allocateArgv(&myargv,maxArgs+1, argSize);
+    runWish(myargv, path, maxArgs+1, argSize);
+    return 0;
+}
+
+int runWish(char **myargv, char** path, int argvSize, int argSize){
+    int i;
+    while(getcmd(myargv[0], argSize)>=0){
+        i=0;
+        parseArgs(myargv[0], &myargv, argvSize);
+        printf(STDOUT,"%s\n", myargv[0]);
+        printf(STDOUT, "done parsing args\n");
+          while(!strcmpbool(myargv[i], "\0")){
+            printf(STDOUT, "in runwish at line %d, we have \"%s\"\n", i, myargv[i]);
+            i++;
         }
-        wait();
+        if (isBuiltIn(myargv[0])){
+            if (strcmpbool(myargv[0],"exit")==0){
+                exit();
+            }
+            executeBuiltIn(myargv, path);
+        }
+        executeCmd(myargv);
+        cleanup(&myargv, argvSize);
+        printf(STDOUT, "awaiting command\n");
     }
-    printf(STDOUT, "done! ", myargv[0]);
-    free(myargv[0]);
     return 0;
 }

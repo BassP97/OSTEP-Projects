@@ -6,6 +6,8 @@
         "memory": "c",
         "utility": "c",
         "istream": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "string": "c",
+        "iosfwd": "c"
     }
 }

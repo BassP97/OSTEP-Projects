@@ -104,3 +104,10 @@ memmove(void *vdst, const void *vsrc, int n)
     *dst++ = *src++;
   return vdst;
 }
+
+int strcmpbool(const char *p, const char *q){
+  if (strcmp(p, q) == 0){
+    return 1;
+  }
+  return 0;
+}
