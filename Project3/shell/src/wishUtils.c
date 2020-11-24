@@ -11,12 +11,12 @@ char * strdup (const char *s);
 int isBuiltIn(char* cmd);
 int executeBuiltIn(char** myargv, char**path);
 char* getToken(int* ptr, char* string, char* delimiter, char* status);
-void splitString(char* string, char* delimiter, char*** res);
+void splitString(char* string, char* delimiter, char** res);
 int executeCmd(char** myargv);
-void parseArgs(char* toParse, char*** buf, int buflen);
+void parseArgs(char* toParse, char** buf, int buflen);
 int getcmd(char *buf, int nbuf);
-void allocateArgv(char*** argv, int argvSize, int argSize);
-void cleanup(char*** argv, int argvSize);
+char** allocateArgv(int argvSize, int argSize);
+void cleanup(char** argv, int argvSize, int argSize);
 
 
 // yes I know it's just a wrapper for memmove, but this is 
@@ -48,41 +48,31 @@ int executeBuiltIn(char** myargv, char**path){
 
 char* getToken(int* ptr, char* string, char* delimiter, char* status){
   char* buf = malloc(100);
+  memset(buf, 0, 100);
   int currIndex = 0;
   char* nullTerm = "\0\0";
   char* null = "\0";
-  char* quote = "\"";
   int isNull;
   int isDelimiter;
-  int quoteOpen;
-  int isQuote;
-
+  char currStr[2];
   if ((*ptr)>strlen(string)){
     *status=0;
     memcpy(buf, nullTerm, 2 );
     return buf;
   }
 
-  char currStr[2];
   memcpy(currStr, &string[*ptr+currIndex], 1 );
   memcpy(currStr+1, null, 1 );
   isNull = strcmpbool(currStr, nullTerm);
   isDelimiter = strcmpbool(currStr, delimiter);
-  quoteOpen = strcmpbool(currStr, quote);
 
-  while ((!isDelimiter || !isNull){
+  while (!isDelimiter && !isNull ){
     memcpy(buf+currIndex, &string[*ptr+currIndex], 1 );
     currIndex++;
     memcpy(currStr, &string[*ptr+currIndex], 1 );
     memcpy(currStr+1, null, 1 );
-    if (!quoteOpen){
-      isDelimiter = strcmpbool(currStr, delimiter);
-    }
+    isDelimiter = strcmpbool(currStr, delimiter);
     isNull = strcmpbool(currStr, nullTerm);
-    isQuote = strcmpbool(currStr, quote);
-    if (isQuote){
-      quoteOpen = !quoteOpen;
-    }
   }
 
   memcpy(buf+currIndex+1, null, 1);
@@ -90,7 +80,7 @@ char* getToken(int* ptr, char* string, char* delimiter, char* status){
   return buf;
 }
 
-void splitString(char* string, char* delimiter, char*** res){
+void splitString(char* string, char* delimiter, char** res){
   int ptr = 0;
   char* refString = strdup(string);
   int i = 0;
@@ -100,9 +90,9 @@ void splitString(char* string, char* delimiter, char*** res){
   while(status){
     temp = getToken(&ptr, refString, delimiter, &status);
     if (status){
-      strcpy(*res[i], temp);
+      strcpy(res[i], temp);
     }else{
-      *res[i]="\0";
+      res[i]="\0";
     }
     free(temp);
     i++;
@@ -120,16 +110,10 @@ int executeCmd(char** myargv){
   return 0;
 }
 
-void parseArgs(char* toParse, char*** buff, int buflen){
+void parseArgs(char* toParse, char** buff, int buflen){
   char* whiteSpace = " ";
   splitString(toParse, whiteSpace, buff);
   printf(STDOUT, "split string:\n");
-  int i=0;
-  while(!strcmpbool(*buff[i], "\0")){
-    printf(STDOUT, "at line %d, we have \"%s\"\n", i, *buff[i]);
-    i++;
-  }
-  printf(STDOUT,"%s\n", *buff[0]);
 }
 
 //shamelessly ripped from sh.c  
@@ -143,19 +127,19 @@ int getcmd(char *buf, int nbuf){
   return 0;
 }
 
-void allocateArgv(char*** argv, int argvSize, int argSize){
+char** allocateArgv(int argvSize, int argSize){
   int i;
-  //means it'll take up about 1k of ram, which isn't great but w/e, it works lol
-  *argv = malloc(argvSize);
+  char** argv = malloc(argvSize*sizeof(char*));
   for(i=0;i<argvSize;i++){
-    *argv[i] = malloc(argSize);  
+    argv[i] = malloc(argSize*sizeof(char));  
+    memset(argv[i], 0, argSize);
   }
+  return argv;
 }
 
-void cleanup(char*** argv, int argvSize){
+void cleanup(char** argv, int argvSize, int argSize){
   int i;
   for(i=0;i<argvSize;i++){
-    free(*argv[i]);
+    memset(argv[i],0,argSize*sizeof(char));
   }
-  free(*argv);
 }

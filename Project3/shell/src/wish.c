@@ -11,23 +11,20 @@ int runWish(char **myargv, char** path, int argvSize, int argSize);
 int main(int argc, char *argv[]){
     char* path[20];
     path[0] = "/bin/";
-    char** myargv;
     uint maxArgs = 10;
     uint argSize = 100;
-    allocateArgv(&myargv,maxArgs+1, argSize);
+    char** myargv = allocateArgv(maxArgs+1, argSize);
     runWish(myargv, path, maxArgs+1, argSize);
     return 0;
 }
 
 int runWish(char **myargv, char** path, int argvSize, int argSize){
-    int i;
+    uint i;
     while(getcmd(myargv[0], argSize)>=0){
+        parseArgs(myargv[0], myargv, argvSize);
         i=0;
-        parseArgs(myargv[0], &myargv, argvSize);
-        printf(STDOUT,"%s\n", myargv[0]);
-        printf(STDOUT, "done parsing args\n");
-          while(!strcmpbool(myargv[i], "\0")){
-            printf(STDOUT, "in runwish at line %d, we have \"%s\"\n", i, myargv[i]);
+        while(!strcmpbool(myargv[i], "\0")){
+            printf(STDOUT, "at line %x, we have \"%s\"\n", i, myargv[i]);
             i++;
         }
         if (isBuiltIn(myargv[0])){
@@ -37,8 +34,7 @@ int runWish(char **myargv, char** path, int argvSize, int argSize){
             executeBuiltIn(myargv, path);
         }
         executeCmd(myargv);
-        cleanup(&myargv, argvSize);
-        printf(STDOUT, "awaiting command\n");
+        cleanup(myargv, argvSize, argSize);
     }
     return 0;
 }
