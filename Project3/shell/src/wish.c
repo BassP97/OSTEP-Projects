@@ -19,14 +19,8 @@ int main(int argc, char *argv[]){
 }
 
 int runWish(char **myargv, char** path, int argvSize, int argSize){
-    uint i;
     while(getcmd(myargv[0], argSize)>=0){
         parseArgs(myargv[0], myargv, argvSize);
-        i=0;
-        while(!strcmpbool(myargv[i], "\0")){
-            printf(STDOUT, "at line %x, we have \"%s\"\n", i, myargv[i]);
-            i++;
-        }
         if (isBuiltIn(myargv[0])){
             if (strcmpbool(myargv[0],"exit")==0){
                 exit();

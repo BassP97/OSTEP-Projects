@@ -86,13 +86,14 @@ void splitString(char* string, char* delimiter, char** res){
   int i = 0;
   char status = 1;
   char* temp;
+  char* null = "\0";
 
   while(status){
     temp = getToken(&ptr, refString, delimiter, &status);
     if (status){
       strcpy(res[i], temp);
     }else{
-      res[i]="\0";
+      strcpy(res[i], null);
     }
     free(temp);
     i++;
@@ -113,12 +114,11 @@ int executeCmd(char** myargv){
 void parseArgs(char* toParse, char** buff, int buflen){
   char* whiteSpace = " ";
   splitString(toParse, whiteSpace, buff);
-  printf(STDOUT, "split string:\n");
 }
 
 //shamelessly ripped from sh.c  
 int getcmd(char *buf, int nbuf){
-  printf(STDOUT, "> ");
+  printf(STDOUT, "\n> ");
   memset(buf, 0, nbuf);
   gets(buf, nbuf);
   if(buf[0] == 0) // EOF
@@ -127,19 +127,30 @@ int getcmd(char *buf, int nbuf){
   return 0;
 }
 
+void printlegalmemory(char* bruh, int size){
+  printf(STDOUT, "memory at loc: \n");
+  int i;
+  for(i=0;i<size;i++){
+    printf(STDOUT, "%x ", bruh+i);
+  }
+  printf(STDOUT, "\n\n");
+}
+
 char** allocateArgv(int argvSize, int argSize){
   int i;
-  char** argv = malloc(argvSize*sizeof(char*));
+  char** argv = (char **)malloc(argvSize*sizeof(char*));
+  char nullVal = 0;
   for(i=0;i<argvSize;i++){
-    argv[i] = malloc(argSize*sizeof(char));  
-    memset(argv[i], 0, argSize);
+    argv[i] = (char *)malloc(argSize*sizeof(char));
+    memset(argv[i], nullVal, argSize*sizeof(char));
   }
   return argv;
 }
 
 void cleanup(char** argv, int argvSize, int argSize){
-  int i;
-  for(i=0;i<argvSize;i++){
-    memset(argv[i],0,argSize*sizeof(char));
+  int j;
+  char nullVal = 0;
+  for(j=0;j<argvSize;j++){
+    memset(argv[j],nullVal,argSize*sizeof(char));
   }
 }
