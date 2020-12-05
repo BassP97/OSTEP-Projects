@@ -5,6 +5,8 @@
 #define CHILDPROC 0
 #define STDERR 1
 #define STDOUT 2
+#define MAXARGS 11
+#define ARGSIZE 100
 
 void* memcpy(void *dst, const void *src, uint n);
 char * strdup (const char *s);
@@ -13,11 +15,11 @@ int executeBuiltIn(char** myargv, char**path);
 char* getToken(int* ptr, char* string, char* delimiter, char* status);
 void splitString(char* string, char* delimiter, char** res);
 int executeCmd(char** myargv);
-void parseArgs(char* toParse, char** buf, int buflen);
-int getcmd(char *buf, int nbuf);
-char** allocateArgv(int argvSize, int argSize);
-void cleanup(char** argv, int argvSize, int argSize);
-
+void parseArgs(char* toParse, char** buf);
+int getcmd(char *buf);
+char** allocateArgv();
+void cleanup(char** argv);
+char error_message[30] = "An error has occurred\n";
 
 // yes I know it's just a wrapper for memmove, but this is 
 // more C-like
@@ -79,21 +81,24 @@ char* getToken(int* ptr, char* string, char* delimiter, char* status){
   *ptr = *ptr+currIndex+1;
   return buf;
 }
+/*
+char* prepend(char* toPrepend, char* strchr){
+  malloc(sizeof(char)*(sizeof(toPrepend)+sizeof(strchr));
 
+}*/
 void splitString(char* string, char* delimiter, char** res){
   int ptr = 0;
   char* refString = strdup(string);
   int i = 0;
   char status = 1;
   char* temp;
-  char* null = "\0";
 
   while(status){
     temp = getToken(&ptr, refString, delimiter, &status);
     if (status){
       strcpy(res[i], temp);
     }else{
-      strcpy(res[i], null);
+      memset(res[i], 0, ARGSIZE);
     }
     free(temp);
     i++;
@@ -111,16 +116,21 @@ int executeCmd(char** myargv){
   return 0;
 }
 
-void parseArgs(char* toParse, char** buff, int buflen){
+
+//where I stopped - parsing involves having each pointer in buff point to the 
+//appropriate location in toparse, NOT copying or allocating new data
+//This means that part of this is modifying toparse to null terminate after/
+//at each delimiter
+void parseArgs(char* toParse, char** buff){
   char* whiteSpace = " ";
   splitString(toParse, whiteSpace, buff);
 }
 
 //shamelessly ripped from sh.c  
-int getcmd(char *buf, int nbuf){
-  printf(STDOUT, "\n> ");
-  memset(buf, 0, nbuf);
-  gets(buf, nbuf);
+int getcmd(char *buf){
+  printf(STDOUT, "> ");
+  memset(buf, 0, ARGSIZE);
+  gets(buf, ARGSIZE);
   if(buf[0] == 0) // EOF
     return -1;
   buf[strlen(buf)-1] = 0;
@@ -136,21 +146,16 @@ void printlegalmemory(char* bruh, int size){
   printf(STDOUT, "\n\n");
 }
 
-char** allocateArgv(int argvSize, int argSize){
+char** allocateArgv(){
   int i;
-  char** argv = (char **)malloc(argvSize*sizeof(char*));
-  char nullVal = 0;
-  for(i=0;i<argvSize;i++){
-    argv[i] = (char *)malloc(argSize*sizeof(char));
-    memset(argv[i], nullVal, argSize*sizeof(char));
-  }
+  char** argv = (char **)malloc(MAXARGS*sizeof(char*));
   return argv;
 }
 
-void cleanup(char** argv, int argvSize, int argSize){
+void cleanup(char** argv){
   int j;
   char nullVal = 0;
-  for(j=0;j<argvSize;j++){
-    memset(argv[j],nullVal,argSize*sizeof(char));
+  for(j=0;j<MAXARGS;j++){
+    memset(argv[j],nullVal,ARGSIZE*sizeof(char));
   }
 }

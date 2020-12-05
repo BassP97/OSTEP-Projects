@@ -5,6 +5,7 @@
 int
 main(int argc, char *argv[])
 {
+  printf(1, "num args:%d", argc);
   int i;
 
   for(i = 1; i < argc; i++)

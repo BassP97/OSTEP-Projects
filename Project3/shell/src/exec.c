@@ -7,6 +7,17 @@
 #include "x86.h"
 #include "elf.h"
 
+#define ARGSIZE 100
+
+void printWholeStringAsBytes(char* toPrint){
+  int currChar=0;
+  while(currChar < ARGSIZE){
+    cprintf("%x ",toPrint[currChar]);
+    currChar++;
+  }
+  cprintf("\n");
+}
+
 int
 exec(char *path, char **argv)
 {
@@ -70,6 +81,7 @@ exec(char *path, char **argv)
 
   // Push argument strings, prepare rest of stack in ustack.
   for(argc = 0; argv[argc]; argc++) {
+    printWholeStringAsBytes(argv[argc]);
     if(argc >= MAXARG)
       goto bad;
     sp = (sp - (strlen(argv[argc]) + 1)) & ~3;
