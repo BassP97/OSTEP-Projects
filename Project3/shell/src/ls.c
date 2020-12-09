@@ -73,9 +73,7 @@ ls(char *path)
 int
 main(int argc, char *argv[])
 {
-  printf(1, "hit ls\n");
   int i;
-  printf(1, "num args: %d\n", argc);  
   if(argc < 2){
     printf(1, "argc<2\n");
     ls(".");

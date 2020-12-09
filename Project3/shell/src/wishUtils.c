@@ -91,7 +91,6 @@ char* getToken(int* ptr, char* string, char* refString, char* delimiter, char* s
 }
 
 void splitString(char* string, char* delimiter, char** res){
-  printf(STDOUT, "splitting string\n");
   int ptr = 0;
   int i = 0;
   char status = 1;
@@ -105,11 +104,15 @@ void splitString(char* string, char* delimiter, char** res){
     startOfWord = temp;
     temp = getToken(&ptr, string, refString, delimiter, &status);
     //printf(STDOUT,"end of word is %x\n", temp);
-    res[i] = startOfWord;
-    memcpy(temp, null, 1);
-    //printf(STDOUT, "word at position %d: ", i);
+    if (!status){
+      res[i]=0;
+    }else{
+      res[i] = startOfWord;
+      memcpy(temp, null, 1);
+    }
+    /*printf(STDOUT, "word at position %d: ", i);
     printf(STDOUT, res[i]);
-    printf(STDOUT, "\n");
+    printf(STDOUT, "\n");*/
     ptr+=1;
     temp+=1;
     i++;
