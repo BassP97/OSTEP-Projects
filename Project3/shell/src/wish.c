@@ -6,7 +6,7 @@
 #define STDERR 1
 #define STDOUT 2
 #define MAXARGS 11
-#define ARGSIZE 100
+#define TOTALSIZE 1000
 
 int runWish(char **myargv, char** path);
 
@@ -19,10 +19,13 @@ int main(int argc, char *argv[]){
 }
 
 int runWish(char **myargv, char** path){
-    while(getcmd(myargv[0])>=0){
-        parseArgs(myargv[0], myargv);
+    char* readBuff = malloc(TOTALSIZE);
+    while(getcmd(readBuff)>=0){
+        parseArgs(readBuff, myargv);
         if (isBuiltIn(myargv[0])){
             if (strcmpbool(myargv[0],"exit")){
+                free(readBuff);
+                free(myargv);
                 exit();
             }
             executeBuiltIn(myargv, path);
@@ -30,5 +33,7 @@ int runWish(char **myargv, char** path){
         executeCmd(myargv);
         cleanup(myargv);
     }
+    free(readBuff);
+    free(myargv);
     return 0;
 }

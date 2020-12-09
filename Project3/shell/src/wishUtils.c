@@ -6,20 +6,20 @@
 #define STDERR 1
 #define STDOUT 2
 #define MAXARGS 11
-#define ARGSIZE 100
+#define TOTALSIZE 1000
 
 void* memcpy(void *dst, const void *src, uint n);
 char * strdup (const char *s);
 int isBuiltIn(char* cmd);
 int executeBuiltIn(char** myargv, char**path);
-char* getToken(int* ptr, char* string, char* delimiter, char* status);
+char* getToken(int* ptr, char* string, char* refString, char* delimiter, char* status);
 void splitString(char* string, char* delimiter, char** res);
 int executeCmd(char** myargv);
 void parseArgs(char* toParse, char** buf);
 int getcmd(char *buf);
 char** allocateArgv();
 void cleanup(char** argv);
-char error_message[30] = "An error has occurred\n";
+char* error_message = "An error has occurred\n";
 
 // yes I know it's just a wrapper for memmove, but this is 
 // more C-like
@@ -48,62 +48,74 @@ int executeBuiltIn(char** myargv, char**path){
   return 0;
 }
 
-char* getToken(int* ptr, char* string, char* delimiter, char* status){
-  char* buf = malloc(100);
-  memset(buf, 0, 100);
+char* getToken(int* ptr, char* string, char* refString, char* delimiter, char* status){
   int currIndex = 0;
   char* nullTerm = "\0\0";
   char* null = "\0";
   int isNull;
   int isDelimiter;
   char currStr[2];
-  if ((*ptr)>strlen(string)){
+  char* finalAddress = &string[*ptr];
+  if ((*ptr)>strlen(refString)){
     *status=0;
-    memcpy(buf, nullTerm, 2 );
-    return buf;
+    return finalAddress;
   }
 
   memcpy(currStr, &string[*ptr+currIndex], 1 );
   memcpy(currStr+1, null, 1 );
   isNull = strcmpbool(currStr, nullTerm);
   isDelimiter = strcmpbool(currStr, delimiter);
-
-  while (!isDelimiter && !isNull ){
-    memcpy(buf+currIndex, &string[*ptr+currIndex], 1 );
+  /*printf(STDOUT, "is it a delimiter?: %d\n", isDelimiter);
+  printf(STDOUT, "is it null?: %d\n", isNull);
+  printf(STDOUT, "here is the current character: %s\n", currStr);
+  printf(STDOUT, "here is the final address: %x\n", finalAddress);
+  */
+  while (!isDelimiter && !isNull){
     currIndex++;
-    memcpy(currStr, &string[*ptr+currIndex], 1 );
+    memcpy(currStr, &string[*ptr+currIndex], 1);
     memcpy(currStr+1, null, 1 );
+    finalAddress = &string[*ptr+currIndex];
     isDelimiter = strcmpbool(currStr, delimiter);
     isNull = strcmpbool(currStr, nullTerm);
+    /*
+    printf(STDOUT, "is it a delimiter?: %d\n", isDelimiter);
+    printf(STDOUT, "is it null?: %d\n", isNull);
+    printf(STDOUT, "here is the current character: %s\n", currStr);
+    printf(STDOUT, "here is the final address: %x\n", finalAddress);
+    */
   }
-
-  memcpy(buf+currIndex+1, null, 1);
-  *ptr = *ptr+currIndex+1;
-  return buf;
+  //printf(STDOUT, "\n");
+  finalAddress = finalAddress;
+  *ptr+=currIndex;
+  return finalAddress;
 }
-/*
-char* prepend(char* toPrepend, char* strchr){
-  malloc(sizeof(char)*(sizeof(toPrepend)+sizeof(strchr));
 
-}*/
 void splitString(char* string, char* delimiter, char** res){
+  printf(STDOUT, "splitting string\n");
   int ptr = 0;
-  char* refString = strdup(string);
   int i = 0;
   char status = 1;
-  char* temp;
-
+  char* refString = strdup(string);
+  char* temp = string;
+  char* null = "\0";
+  char* startOfWord;
   while(status){
-    temp = getToken(&ptr, refString, delimiter, &status);
-    if (status){
-      strcpy(res[i], temp);
-    }else{
-      memset(res[i], 0, ARGSIZE);
-    }
-    free(temp);
+    //printf(STDOUT, "\n\niteration number %d\n",i);
+    //printf(STDOUT,"start of word is %x\n", temp);
+    startOfWord = temp;
+    temp = getToken(&ptr, string, refString, delimiter, &status);
+    //printf(STDOUT,"end of word is %x\n", temp);
+    res[i] = startOfWord;
+    memcpy(temp, null, 1);
+    //printf(STDOUT, "word at position %d: ", i);
+    printf(STDOUT, res[i]);
+    printf(STDOUT, "\n");
+    ptr+=1;
+    temp+=1;
     i++;
   }
   i=0;
+  //printf(STDOUT, "done splitting string\n");
   free(refString);
 }
 
@@ -129,8 +141,8 @@ void parseArgs(char* toParse, char** buff){
 //shamelessly ripped from sh.c  
 int getcmd(char *buf){
   printf(STDOUT, "> ");
-  memset(buf, 0, ARGSIZE);
-  gets(buf, ARGSIZE);
+  memset(buf, 0, TOTALSIZE);
+  gets(buf, TOTALSIZE);
   if(buf[0] == 0) // EOF
     return -1;
   buf[strlen(buf)-1] = 0;
@@ -147,15 +159,18 @@ void printlegalmemory(char* bruh, int size){
 }
 
 char** allocateArgv(){
-  int i;
   char** argv = (char **)malloc(MAXARGS*sizeof(char*));
   return argv;
 }
 
 void cleanup(char** argv){
-  int j;
-  char nullVal = 0;
-  for(j=0;j<MAXARGS;j++){
-    memset(argv[j],nullVal,ARGSIZE*sizeof(char));
+  for (int i=0;i<MAXARGS; i++){
+    argv[i]=0;
+  }
+}
+
+void printArgAddress(char** argv){
+  for (int i=0;i<MAXARGS; i++){
+    printf(STDOUT, "%x ", argv[i]);
   }
 }

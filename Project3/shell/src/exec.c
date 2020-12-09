@@ -12,8 +12,15 @@
 void printWholeStringAsBytes(char* toPrint){
   int currChar=0;
   while(currChar < ARGSIZE){
-    cprintf("%x ",toPrint[currChar]);
+    cprintf("%x",toPrint[currChar]);
+    if (toPrint[currChar]==0){
+      cprintf("0",toPrint[currChar]);
+    }
+    if (currChar>0 && currChar%25==0){
+      cprintf("\n ",toPrint[currChar]);
+    }
     currChar++;
+    cprintf(" ");
   }
   cprintf("\n");
 }
