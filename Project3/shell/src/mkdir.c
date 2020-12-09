@@ -5,7 +5,6 @@
 int
 main(int argc, char *argv[])
 {
-  printf(1, "args num %d\n", argc);
   int i;
 
   if(argc < 2){

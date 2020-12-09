@@ -88,7 +88,7 @@ exec(char *path, char **argv)
 
   // Push argument strings, prepare rest of stack in ustack.
   for(argc = 0; argv[argc]; argc++) {
-    printWholeStringAsBytes(argv[argc]);
+    //printWholeStringAsBytes(argv[argc]);
     if(argc >= MAXARG)
       goto bad;
     sp = (sp - (strlen(argv[argc]) + 1)) & ~3;
