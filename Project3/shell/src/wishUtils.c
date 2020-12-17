@@ -18,7 +18,8 @@ int executeCmd(char** myargv);
 void parseArgs(char* toParse, char** buf);
 int getcmd(char *buf);
 char** allocateArgv();
-void cleanup(char** argv);
+void cleanup(char** argv, int basePid);
+void parallelize(char** readBuff);
 char* error_message = "An error has occurred\n";
 
 // yes I know it's just a wrapper for memmove, but this is 
@@ -131,14 +132,49 @@ int executeCmd(char** myargv){
   return 0;
 }
 
-
-//where I stopped - parsing involves having each pointer in buff point to the 
-//appropriate location in toparse, NOT copying or allocating new data
-//This means that part of this is modifying toparse to null terminate after/
-//at each delimiter
 void parseArgs(char* toParse, char** buff){
   char* whiteSpace = " ";
   splitString(toParse, whiteSpace, buff);
+}
+
+void parallelize(char** readBuf){
+  int currChar = 0;
+  int amChild;
+
+  char* resBuf = malloc(TOTALSIZE);
+  char* readBuff = *readBuf;
+  char* baseByte = readBuff;
+
+  while(readBuff[currChar]!=0){//while not reading null
+    if(readBuff[currChar]=='&'){
+      // printf(STDOUT, "hit ampersand \nhere's resbuf: ");
+      memcpy(resBuf, baseByte, (&readBuff[currChar]-baseByte));//this is gross but who cares amirite
+      // printf(STDOUT, resBuf);
+      // printf(STDOUT, "\n");
+      amChild = fork();
+      if(amChild){
+        // printf(STDOUT, "child, resbuf:\n");
+        *readBuf = resBuf;
+        free(readBuff);
+        // printf(STDOUT, "here is location of readbuf in func: %x", readBuff);
+        return;
+      }
+      // printf(STDOUT, "parent, resbuf:\n");
+      // printf(STDOUT, resBuf);
+      // printf(STDOUT, "\n");
+      // printf(STDOUT, "here is location of readbuf in func: %x\n", readBuff);
+
+      baseByte = &readBuff[currChar]+1;
+    }
+    currChar+=1;
+  }
+  // printf(STDOUT, "done\nhere's resbuf: ");
+  memcpy(resBuf, baseByte, (&readBuff[currChar]-baseByte));//this is gross but who cares amirite
+  // printf(STDOUT, resBuf);
+  // printf(STDOUT, "\n");
+  *readBuf = resBuf;
+  free(readBuff);
+  return;
 }
 
 //shamelessly ripped from sh.c  
@@ -166,9 +202,12 @@ char** allocateArgv(){
   return argv;
 }
 
-void cleanup(char** argv){
+void cleanup(char** argv, int basePid){
   for (int i=0;i<MAXARGS; i++){
     argv[i]=0;
+  }
+  if (getpid() != basePid){
+    exit();
   }
 }
 
