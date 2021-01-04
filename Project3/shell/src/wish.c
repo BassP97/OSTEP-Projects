@@ -25,10 +25,6 @@ int runWish(char **myargv, char** path){
     int basePid = getpid();
     while(getcmd(readBuff)>=0){
         parallelize(&readBuff);
-        // printf(STDOUT, "back in wish, here's readbuff:\n");
-        // printf(STDOUT, readBuff);
-        // printf(STDOUT, "\n");
-        // printf(STDOUT, "here is location of readbuff out of func: %x\n", readBuff);
         parseArgs(readBuff, myargv);
         if (isBuiltIn(myargv[0])){
             if (strcmpbool(myargv[0],"exit")){
@@ -39,7 +35,6 @@ int runWish(char **myargv, char** path){
             executeBuiltIn(myargv, path);
         }
         executeCmd(myargv);
-        printf(STDOUT, "cleaning up %d with base pid of %d\n", getpid(), basePid());
         cleanup(myargv, basePid);
         wait();
     }

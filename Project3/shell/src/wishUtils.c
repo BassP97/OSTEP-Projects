@@ -145,33 +145,22 @@ void parallelize(char** readBuf){
   char* readBuff = *readBuf;
   char* baseByte = readBuff;
 
-  while(readBuff[currChar]!=0){//while not reading null
+  while(readBuff[currChar]!=0){
     if(readBuff[currChar]=='&'){
-      // printf(STDOUT, "hit ampersand \nhere's resbuf: ");
-      memcpy(resBuf, baseByte, (&readBuff[currChar]-baseByte));//this is gross but who cares amirite
-      // printf(STDOUT, resBuf);
-      // printf(STDOUT, "\n");
+      //this is gross but who cares amirite
+      memcpy(resBuf, baseByte, (&readBuff[currChar]-baseByte));
       amChild = fork();
       if(amChild){
-        // printf(STDOUT, "child, resbuf:\n");
         *readBuf = resBuf;
         free(readBuff);
-        // printf(STDOUT, "here is location of readbuf in func: %x", readBuff);
         return;
       }
-      // printf(STDOUT, "parent, resbuf:\n");
-      // printf(STDOUT, resBuf);
-      // printf(STDOUT, "\n");
-      // printf(STDOUT, "here is location of readbuf in func: %x\n", readBuff);
-
       baseByte = &readBuff[currChar]+1;
     }
     currChar+=1;
   }
-  // printf(STDOUT, "done\nhere's resbuf: ");
-  memcpy(resBuf, baseByte, (&readBuff[currChar]-baseByte));//this is gross but who cares amirite
-  // printf(STDOUT, resBuf);
-  // printf(STDOUT, "\n");
+  //this is gross but who cares amirite 2, electric boogaloo
+  memcpy(resBuf, baseByte, (&readBuff[currChar]-baseByte));
   *readBuf = resBuf;
   free(readBuff);
   return;
@@ -203,6 +192,7 @@ char** allocateArgv(){
 }
 
 void cleanup(char** argv, int basePid){
+  
   for (int i=0;i<MAXARGS; i++){
     argv[i]=0;
   }
