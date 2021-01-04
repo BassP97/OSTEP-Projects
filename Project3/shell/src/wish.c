@@ -34,6 +34,8 @@ int runWish(char **myargv, char** path){
             }
             executeBuiltIn(myargv, path);
         }
+        sleep(((getpid())/263)*2);//arbitrary prime, avoids getting garbled output from multiple processes writing to STDOUT
+        //yes I know I could use a lock but this is easier and i dont care that much lol
         executeCmd(myargv);
         cleanup(myargv, basePid);
         wait();

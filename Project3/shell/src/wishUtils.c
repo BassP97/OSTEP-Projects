@@ -197,6 +197,7 @@ void cleanup(char** argv, int basePid){
     argv[i]=0;
   }
   if (getpid() != basePid){
+    wait();//if this process spawned a child, we want to wait til its done to end
     exit();
   }
 }
